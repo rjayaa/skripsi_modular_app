@@ -1,3 +1,4 @@
+// lib/features/auth/presentation/pages/splash_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,15 +13,50 @@ class SplashPage extends StatefulWidget {
   _SplashPageState createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> {
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+
   @override
   void initState() {
     super.initState();
+
+    // Setup animations
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Interval(0.0, 0.5, curve: Curves.easeOut),
+      ),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
+
+    // Start animation
+    _controller.forward();
+
     _checkAuth();
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   Future<void> _checkAuth() async {
-    // Give a little delay to show splash screen
+    // Give a delay to show splash screen
     await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
@@ -32,32 +68,149 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final primaryColor = Theme.of(context).primaryColor;
+
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [primaryColor, primaryColor.withOpacity(0.7)],
+          ),
+        ),
+        child: Stack(
           children: [
-            // App logo
-            Icon(
-              Icons.sync_alt,
-              size: 100,
-              color: Theme.of(context).primaryColor,
+            // Decorative elements
+            Positioned(
+              right: -50,
+              top: size.height * 0.15,
+              child: Container(
+                width: size.width * 0.4,
+                height: size.width * 0.4,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.1),
+                ),
+              ),
+            ),
+            Positioned(
+              left: -30,
+              bottom: size.height * 0.2,
+              child: Container(
+                width: size.width * 0.3,
+                height: size.width * 0.3,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.1),
+                ),
+              ),
             ),
 
-            const SizedBox(height: 24),
+            // Main content
+            Center(
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  return Opacity(
+                    opacity: _fadeAnimation.value,
+                    child: Transform.scale(
+                      scale: _scaleAnimation.value,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Logo container
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 20,
+                                  spreadRadius: 2,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.sync_alt,
+                              size: 60,
+                              color: primaryColor,
+                            ),
+                          ),
 
-            // App name
-            Text(
-              'Modular App',
-              style: Theme.of(
-                context,
-              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                          const SizedBox(height: 24),
+
+                          // App name
+                          Text(
+                            'Modular App',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 1.2,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black26,
+                                  blurRadius: 2,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          // Tagline
+                          Text(
+                            'Your Ultimate Connectivity Solution',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 16,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+
+                          const SizedBox(height: 48),
+
+                          // Loading indicator
+                          SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                              strokeWidth: 3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
 
-            const SizedBox(height: 48),
-
-            // Loading indicator
-            const CircularProgressIndicator(),
+            // Version text
+            Positioned(
+              bottom: 24,
+              left: 0,
+              right: 0,
+              child: Text(
+                'Version 1.0.0',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
           ],
         ),
       ),

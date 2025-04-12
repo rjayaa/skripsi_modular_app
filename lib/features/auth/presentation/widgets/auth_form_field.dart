@@ -1,3 +1,4 @@
+// lib/features/auth/presentation/widgets/auth_form_field.dart
 import 'package:flutter/material.dart';
 
 class AuthFormField extends StatelessWidget {
@@ -30,25 +31,76 @@ class AuthFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      focusNode: focusNode,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixIcon: Icon(prefixIcon),
-        suffixIcon: suffixIcon,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 16.0,
-          horizontal: 16.0,
+    final primaryColor = Theme.of(context).primaryColor;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Label
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[800],
+            ),
+          ),
         ),
-      ),
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      validator: validator,
-      textInputAction: textInputAction,
-      onFieldSubmitted: onFieldSubmitted,
+
+        // Text field
+        TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+            prefixIcon: Icon(prefixIcon, color: Colors.grey[600], size: 20),
+            suffixIcon: suffixIcon,
+
+            // Border styling
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(color: primaryColor, width: 1.5),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: const BorderSide(color: Colors.red, width: 1),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+            ),
+
+            // Other styling
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 16.0,
+              horizontal: 16.0,
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
+            errorStyle: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          style: TextStyle(fontSize: 15, color: Colors.grey[800]),
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          validator: validator,
+          textInputAction: textInputAction,
+          onFieldSubmitted: onFieldSubmitted,
+        ),
+      ],
     );
   }
 }

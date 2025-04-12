@@ -12,65 +12,98 @@ class PromotionsCarousel extends StatefulWidget {
     : super(key: key);
 
   @override
-  _PromotionsCarouselState createState() => _PromotionsCarouselState();
+  State<PromotionsCarousel> createState() => _PromotionsCarouselState();
 }
 
 class _PromotionsCarouselState extends State<PromotionsCarousel> {
   late Future<List<PromotionModel>> _promotionsFuture;
+  final PageController _pageController = PageController(viewportFraction: 0.9);
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
     _promotionsFuture = widget.repository.getPromotions();
+    _pageController.addListener(() {
+      int next = _pageController.page!.round();
+      if (_currentPage != next) {
+        setState(() {
+          _currentPage = next;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Special Offers',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            TextButton(
-              onPressed: () {
-                // Navigate to all promotions page
-              },
-              child: const Text('See All'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        FutureBuilder<List<PromotionModel>>(
-          future: _promotionsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return _buildLoadingIndicator();
-            } else if (snapshot.hasError) {
-              return _buildErrorView(snapshot.error.toString());
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return _buildEmptyView();
-            }
+    return FutureBuilder<List<PromotionModel>>(
+      future: _promotionsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildLoadingIndicator();
+        } else if (snapshot.hasError) {
+          return _buildErrorView(snapshot.error.toString());
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return _buildEmptyView();
+        }
 
-            final promotions = snapshot.data!;
-            return SizedBox(
-              height: 200,
+        final promotions = snapshot.data!;
+        return Column(
+          children: [
+            SizedBox(
+              height: 220,
               child: PageView.builder(
-                controller: PageController(viewportFraction: 0.9),
+                controller: _pageController,
                 itemCount: promotions.length,
                 itemBuilder: (context, index) {
                   final promotion = promotions[index];
-                  return _buildPromotionCard(context, promotion);
+                  // Apply scale effect to items
+                  double scale = _currentPage == index ? 1.0 : 0.9;
+                  return TweenAnimationBuilder(
+                    tween: Tween(begin: scale, end: scale),
+                    duration: const Duration(milliseconds: 350),
+                    curve: Curves.easeOutQuint,
+                    builder: (context, scale, child) {
+                      return Transform.scale(
+                        scale: scale as double,
+                        child: child,
+                      );
+                    },
+                    child: _buildPromotionCard(context, promotion),
+                  );
                 },
               ),
-            );
-          },
-        ),
-      ],
+            ),
+            const SizedBox(height: 16),
+            // Page indicator
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                promotions.length,
+                (index) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  height: 8,
+                  width: _currentPage == index ? 24 : 8,
+                  decoration: BoxDecoration(
+                    color:
+                        _currentPage == index
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -82,7 +115,7 @@ class _PromotionsCarouselState extends State<PromotionsCarousel> {
     );
 
     return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       child: GestureDetector(
         onTap: () {
           Navigator.push(
@@ -93,22 +126,30 @@ class _PromotionsCarouselState extends State<PromotionsCarousel> {
           );
         },
         child: Card(
-          elevation: 4,
+          elevation: 6,
+          shadowColor: Colors.black26,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.grey[300], // Fallback color
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 0,
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                // Updated image loading logic to handle both asset and network images
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Image with error handling
+                  Image(
                     image:
                         promotion.imageUrl.startsWith('assets/')
                             ? AssetImage(promotion.imageUrl)
@@ -127,98 +168,143 @@ class _PromotionsCarouselState extends State<PromotionsCarousel> {
                       );
                     },
                   ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.7),
-                      ],
+                  // Gradient overlay for better text visibility
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.05),
+                          Colors.black.withOpacity(0.8),
+                        ],
+                        stops: const [0.6, 0.75, 1.0],
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        promotion.title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        promotion.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          if (promotion.discountPrice != null) ...[
-                            Text(
-                              currencyFormat.format(promotion.price),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                decoration: TextDecoration.lineThrough,
+                  // Content overlay
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        // Discount badge if available
+                        if (promotion.discountPrice != null)
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              currencyFormat.format(promotion.discountPrice),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                            ),
-                          ] else
-                            Text(
-                              currencyFormat.format(promotion.price),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Text(
-                              'Valid until ${DateFormat('d MMM').format(promotion.validUntil)}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
+                              child: Text(
+                                '${(((promotion.price - (promotion.discountPrice ?? 0)) / promotion.price) * 100).round()}% OFF',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                    ],
+                        const Spacer(),
+                        // Title
+                        Text(
+                          promotion.title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(0, 1),
+                                blurRadius: 3.0,
+                                color: Color.fromARGB(255, 0, 0, 0),
+                              ),
+                            ],
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                        // Description
+                        Text(
+                          promotion.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Price row
+                        Row(
+                          children: [
+                            if (promotion.discountPrice != null) ...[
+                              Text(
+                                currencyFormat.format(promotion.price),
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 14,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                currencyFormat.format(promotion.discountPrice),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ] else
+                              Text(
+                                currencyFormat.format(promotion.price),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            const Spacer(),
+                            // Validity period
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                'Until ${DateFormat('d MMM').format(promotion.validUntil)}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -227,32 +313,76 @@ class _PromotionsCarouselState extends State<PromotionsCarousel> {
   }
 
   Widget _buildLoadingIndicator() {
-    return const SizedBox(
-      height: 200,
-      child: Center(child: CircularProgressIndicator()),
+    return SizedBox(
+      height: 220,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(color: Theme.of(context).primaryColor),
+            const SizedBox(height: 16),
+            Text(
+              'Loading special offers...',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildErrorView(String error) {
     return Container(
-      height: 200,
+      height: 220,
       decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(16),
       ),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 48),
-            const SizedBox(height: 8),
-            const Text(
-              'Failed to load promotions',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline,
+                color: Colors.red[300],
+                size: 36,
+              ),
             ),
-            Text(
-              error,
-              style: const TextStyle(color: Colors.red, fontSize: 12),
+            const SizedBox(height: 16),
+            const Text(
+              'Error loading promotions',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                error,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _promotionsFuture = widget.repository.getPromotions();
+                });
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
             ),
           ],
         ),
@@ -262,20 +392,41 @@ class _PromotionsCarouselState extends State<PromotionsCarousel> {
 
   Widget _buildEmptyView() {
     return Container(
-      height: 200,
+      height: 220,
       decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: const Center(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.local_offer_outlined, color: Colors.grey, size: 48),
-            SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.local_offer_outlined,
+                color: Colors.blue[300],
+                size: 36,
+              ),
+            ),
+            const SizedBox(height: 16),
             Text(
-              'No promotions available at the moment',
-              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+              'No promotions available',
+              style: TextStyle(
+                color: Colors.grey[800],
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Check back later for exciting offers!',
+              style: TextStyle(color: Colors.grey[600]),
             ),
           ],
         ),

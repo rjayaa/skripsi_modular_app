@@ -1,3 +1,4 @@
+// lib/features/profile/presentation/widgets/profile_field.dart
 import 'package:flutter/material.dart';
 
 class ProfileField extends StatelessWidget {
@@ -24,44 +25,62 @@ class ProfileField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.blue,
-          ),
+        Row(
+          children: [
+            Icon(prefixIcon, size: 18, color: Theme.of(context).primaryColor),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[700],
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         isEditing && controller != null
             ? TextFormField(
               controller: controller,
               decoration: InputDecoration(
-                prefixIcon: Icon(prefixIcon),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor,
+                    width: 2,
+                  ),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   vertical: 16,
                   horizontal: 16,
                 ),
+                fillColor: Colors.grey[50],
+                filled: true,
               ),
               validator: validator,
             )
             : Container(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border.all(color: Colors.grey[200]!),
                 borderRadius: BorderRadius.circular(8),
+                color: Colors.grey[50],
               ),
               child: Row(
                 children: [
-                  Icon(prefixIcon, color: Colors.grey),
-                  const SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       controller?.text ?? initialValue ?? '',
-                      style: const TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[800]),
                     ),
                   ),
                 ],
