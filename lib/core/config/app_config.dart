@@ -11,7 +11,7 @@ class AppConfig {
       case Environment.dev:
         // Check platform to determine the correct local URL
         if (Platform.isAndroid) {
-          return 'http://10.0.2.2:3000/api'; // For Android emulator (host machine)
+          return 'http://103.148.197.182:9989/api'; // For Android emulator (host machine)
         } else if (Platform.isIOS) {
           return 'http://localhost:3000/api'; // For iOS simulator
         } else {
