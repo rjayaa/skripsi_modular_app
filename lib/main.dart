@@ -86,6 +86,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Modular App',
         theme: ThemeData(
           primarySwatch: Colors.blue,

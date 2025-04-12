@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:modular_skripsi_app/core/widgets/app_shell.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
@@ -43,7 +44,12 @@ class _LoginPageState extends State<LoginPage> {
       _passwordController.text.trim(),
     );
 
-    if (!success && mounted) {
+    if (success && mounted) {
+      // Add this: Explicit navigation to App Shell on success
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppShell.routeName, (route) => false);
+    } else if (!success && mounted) {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

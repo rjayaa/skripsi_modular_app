@@ -25,12 +25,17 @@ class AuthService {
         requireAuth: false,
       );
 
-      // Save tokens
-      await _storageService.setAuthToken(response['accessToken']);
-      await _storageService.setRefreshToken(response['refreshToken']);
+      print(response);
+
+      // Extract the data field from response
+      final data = response['data'];
+
+      // Now access fields from the data object
+      await _storageService.setAuthToken(data['accessToken']);
+      await _storageService.setRefreshToken(data['refreshToken']);
 
       // Create and save user
-      final user = UserModel.fromJson(response['user']);
+      final user = UserModel.fromJson(data['user']);
       await _storageService.setUser(user.toJson());
 
       return user;

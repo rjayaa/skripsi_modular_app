@@ -20,12 +20,14 @@ class UserModel {
       id: json['id'],
       email: json['email'],
       name: json['name'],
-      avatarUrl: json['avatarUrl'],
+      avatarUrl: json['avatar_url'],
       role: json['role'],
-      createdAt: DateTime.parse(json['createdAt']),
+      createdAt:
+          json['created_at'] != null
+              ? DateTime.parse(json['created_at'])
+              : DateTime.now(),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,

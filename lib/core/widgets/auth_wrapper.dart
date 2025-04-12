@@ -13,6 +13,9 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
 
+    // Add this debug print
+    print("AuthWrapper build called with status: ${authProvider.status}");
+
     // Show different screens based on auth status
     switch (authProvider.status) {
       case AuthStatus.initial:
@@ -20,6 +23,7 @@ class AuthWrapper extends StatelessWidget {
         return const SplashPage();
 
       case AuthStatus.authenticated:
+        print("Routing to AppShell"); // Add this
         return const AppShell();
 
       case AuthStatus.unauthenticated:
