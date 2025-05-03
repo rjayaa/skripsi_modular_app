@@ -4,6 +4,7 @@ import 'package:modular_skripsi_app/features/billing/presentation/pages/billing_
 import 'package:modular_skripsi_app/features/home/presentation/widgets/news_carousel.dart';
 import 'package:modular_skripsi_app/features/notification/presentation/pages/notification_page.dart';
 import 'package:modular_skripsi_app/features/notification/presentation/providers/notification_provider.dart';
+import 'package:modular_skripsi_app/features/support/presentation/pages/support_page.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/providers/connectivity_provider.dart';
@@ -307,9 +308,7 @@ class _HomePageState extends State<HomePage> {
             );
             break;
           case 'Support':
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Support page coming soon!')),
-            );
+            Navigator.pushNamed(context, SupportPage.routeName);
             break;
         }
       },

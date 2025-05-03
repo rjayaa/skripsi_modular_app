@@ -1,6 +1,7 @@
 // Update lib/core/config/app_router.dart
 
 import 'package:flutter/material.dart';
+import 'package:modular_skripsi_app/features/support/presentation/pages/support_page.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
@@ -38,6 +39,9 @@ class AppRouter {
 
       case BillingPage.routeName:
         return MaterialPageRoute(builder: (_) => const BillingPage());
+
+      case SupportPage.routeName:
+        return MaterialPageRoute(builder: (_) => const SupportPage());
 
       case AppShell.routeName:
         return MaterialPageRoute(builder: (_) => const AppShell());

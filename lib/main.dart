@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:modular_skripsi_app/features/billing/data/repositories/billing_repository.dart';
 import 'package:modular_skripsi_app/features/notification/data/repositories/notification_repository.dart';
+import 'package:modular_skripsi_app/features/support/data/repositories/support_repository.dart';
+import 'package:modular_skripsi_app/features/support/presentation/providers/support_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'core/api/api_client.dart';
@@ -110,6 +112,16 @@ class MyApp extends StatelessWidget {
           create:
               (context) => BillingProvider(
                 repository: context.read<BillingRepository>(),
+              ),
+        ),
+
+        // Support provider
+        Provider<SupportRepository>(create: (_) => SupportRepository()),
+
+        ChangeNotifierProvider<SupportProvider>(
+          create:
+              (context) => SupportProvider(
+                repository: context.read<SupportRepository>(),
               ),
         ),
       ],
