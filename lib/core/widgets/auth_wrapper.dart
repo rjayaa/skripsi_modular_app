@@ -1,9 +1,12 @@
+// Update file lib/core/widgets/auth_wrapper.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/notification/presentation/providers/notification_provider.dart';
 import 'app_shell.dart';
 
 class AuthWrapper extends StatelessWidget {
@@ -24,6 +27,10 @@ class AuthWrapper extends StatelessWidget {
 
       case AuthStatus.authenticated:
         print("Routing to AppShell"); // Add this
+        // Load notifications when user is authenticated
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          context.read<NotificationProvider>().loadNotifications();
+        });
         return const AppShell();
 
       case AuthStatus.unauthenticated:

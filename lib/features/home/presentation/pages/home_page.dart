@@ -1,6 +1,8 @@
 // lib/features/home/presentation/pages/home_page.dart
 import 'package:flutter/material.dart';
 import 'package:modular_skripsi_app/features/home/presentation/widgets/news_carousel.dart';
+import 'package:modular_skripsi_app/features/notification/presentation/pages/notification_page.dart';
+import 'package:modular_skripsi_app/features/notification/presentation/providers/notification_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/providers/connectivity_provider.dart';
@@ -175,37 +177,37 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       actions: [
-        Stack(
-          children: [
-            IconButton(
-              icon: const Icon(
-                Icons.notifications_outlined,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                // Handle notifications
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Notifications'),
-                    duration: Duration(seconds: 1),
+        Consumer<NotificationProvider>(
+          builder: (context, notificationProvider, child) {
+            return Stack(
+              children: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.notifications_outlined,
+                    color: Colors.white,
                   ),
-                );
-              },
-            ),
-            Positioned(
-              right: 8,
-              top: 8,
-              child: Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 1.5),
+                  onPressed: () {
+                    // Navigate to notifications page
+                    Navigator.pushNamed(context, NotificationPage.routeName);
+                  },
                 ),
-              ),
-            ),
-          ],
+                if (notificationProvider.unreadCount > 0)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
         IconButton(
           icon: const Icon(Icons.help_outline, color: Colors.white),
