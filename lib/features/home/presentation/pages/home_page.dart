@@ -1,5 +1,6 @@
 // lib/features/home/presentation/pages/home_page.dart
 import 'package:flutter/material.dart';
+import 'package:modular_skripsi_app/features/billing/presentation/pages/billing_page.dart';
 import 'package:modular_skripsi_app/features/home/presentation/widgets/news_carousel.dart';
 import 'package:modular_skripsi_app/features/notification/presentation/pages/notification_page.dart';
 import 'package:modular_skripsi_app/features/notification/presentation/providers/notification_provider.dart';
@@ -290,9 +291,27 @@ class _HomePageState extends State<HomePage> {
   Widget _buildQuickAccessItem(IconData icon, String label, Color color) {
     return InkWell(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(label), duration: const Duration(seconds: 1)),
-        );
+        // Navigate to specific page based on label
+        switch (label) {
+          case 'Billing':
+            Navigator.pushNamed(context, BillingPage.routeName);
+            break;
+          case 'My Plan':
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('My Plan page coming soon!')),
+            );
+            break;
+          case 'Speed Test':
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Speed Test coming soon!')),
+            );
+            break;
+          case 'Support':
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Support page coming soon!')),
+            );
+            break;
+        }
       },
       borderRadius: BorderRadius.circular(12),
       child: Column(

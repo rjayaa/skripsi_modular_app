@@ -1,4 +1,4 @@
-// Update file lib/core/config/app_router.dart
+// Update lib/core/config/app_router.dart
 
 import 'package:flutter/material.dart';
 
@@ -8,6 +8,7 @@ import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/notification/presentation/pages/notification_page.dart';
+import '../../features/billing/presentation/pages/billing_page.dart';
 import '../widgets/app_shell.dart';
 import '../widgets/auth_wrapper.dart';
 
@@ -34,6 +35,9 @@ class AppRouter {
 
       case NotificationPage.routeName:
         return MaterialPageRoute(builder: (_) => const NotificationPage());
+
+      case BillingPage.routeName:
+        return MaterialPageRoute(builder: (_) => const BillingPage());
 
       case AppShell.routeName:
         return MaterialPageRoute(builder: (_) => const AppShell());

@@ -1,6 +1,8 @@
-// Update file lib/main.dart
+// Update lib/main.dart
 
 import 'package:flutter/material.dart';
+import 'package:modular_skripsi_app/features/billing/data/repositories/billing_repository.dart';
+import 'package:modular_skripsi_app/features/notification/data/repositories/notification_repository.dart';
 import 'package:provider/provider.dart';
 
 import 'core/api/api_client.dart';
@@ -13,8 +15,8 @@ import 'core/widgets/no_connection_banner.dart';
 import 'features/auth/data/services/auth_service.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
-import 'features/notification/data/repositories/notification_repository.dart';
 import 'features/notification/presentation/providers/notification_provider.dart';
+import 'features/billing/presentation/providers/billing_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,6 +100,16 @@ class MyApp extends StatelessWidget {
           create:
               (context) => NotificationProvider(
                 repository: context.read<NotificationRepository>(),
+              ),
+        ),
+
+        // Billing provider
+        Provider<BillingRepository>(create: (_) => BillingRepository()),
+
+        ChangeNotifierProvider<BillingProvider>(
+          create:
+              (context) => BillingProvider(
+                repository: context.read<BillingRepository>(),
               ),
         ),
       ],
