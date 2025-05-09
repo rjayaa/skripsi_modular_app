@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/notification_provider.dart';
 import 'login_screen.dart';
+import 'notification_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -9,6 +11,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final notificationProvider = Provider.of<NotificationProvider>(context);
     final user = authProvider.user;
 
     return Scaffold(
@@ -16,6 +19,44 @@ class DashboardScreen extends StatelessWidget {
         title: const Text('Dashboard'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          // Notification Icon with Badge
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationScreen(),
+                    ),
+                  );
+                },
+              ),
+              if (notificationProvider.hasUnread)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    child: Text(
+                      '${notificationProvider.unreadCount}',
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
@@ -114,6 +155,61 @@ class DashboardScreen extends StatelessWidget {
               'Ini adalah halaman dashboard dummy untuk demonstrasi. Anda berhasil login ke sistem.',
               style: TextStyle(fontSize: 16),
             ),
+            // Recent notifications preview
+            if (notificationProvider.hasUnread) ...[
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Notifikasi Terbaru',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text('Lihat Semua'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Card(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    child: const Icon(Icons.notifications, color: Colors.white),
+                  ),
+                  title: Text(
+                    notificationProvider.notifications
+                        .where((n) => !n.isRead)
+                        .first
+                        .title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    notificationProvider.notifications
+                        .where((n) => !n.isRead)
+                        .first
+                        .message,
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NotificationScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ],
         ),
       ),

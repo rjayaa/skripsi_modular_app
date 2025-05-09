@@ -43,11 +43,15 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             // Logo atau gambar loading
             Image.asset(
-              'assets/logo.png', 
-              height: 120, 
+              'assets/logo.png',
+              height: 120,
               width: 120,
-              errorBuilder: (context, error, stackTrace) => 
-                  const Icon(Icons.lock, size: 80, color: Colors.deepPurple),
+              errorBuilder:
+                  (context, error, stackTrace) => const Icon(
+                    Icons.lock,
+                    size: 80,
+                    color: Colors.deepPurple,
+                  ),
             ),
             const SizedBox(height: 30),
             const CircularProgressIndicator(),
