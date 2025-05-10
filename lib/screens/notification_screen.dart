@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/notification_provider.dart';
 import 'package:intl/intl.dart';
+import 'notification_detail_screen.dart';
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
@@ -89,6 +90,17 @@ class NotificationScreen extends StatelessWidget {
                       ),
                       isThreeLine: true,
                       onTap: () {
+                        // Navigasi ke halaman detail notifikasi
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NotificationDetailScreen(
+                              notificationId: notification.id,
+                            ),
+                          ),
+                        );
+                        
+                        // Tandai sebagai dibaca jika belum dibaca
                         if (!notification.isRead) {
                           notificationProvider.markAsRead(notification.id);
                         }

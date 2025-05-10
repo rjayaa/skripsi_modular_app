@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:modular_skripsi_app/screens/notification_detail_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
@@ -200,10 +201,18 @@ class DashboardScreen extends StatelessWidget {
                         .message,
                   ),
                   onTap: () {
+                    final unreadNotification =
+                        notificationProvider.notifications
+                            .where((n) => !n.isRead)
+                            .first;
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const NotificationScreen(),
+                        builder:
+                            (context) => NotificationDetailScreen(
+                              notificationId: unreadNotification.id,
+                            ),
                       ),
                     );
                   },

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
+import '../main.dart'; // Import untuk mengakses global messaging service
 
 class AuthProvider extends ChangeNotifier {
   User? _user;
@@ -38,6 +39,17 @@ class AuthProvider extends ChangeNotifier {
         await prefs.setString('accessToken', _accessToken!);
         await prefs.setString('refreshToken', _refreshToken!);
         await prefs.setString('userData', jsonEncode(userData));
+
+        // Update FCM token ke server setelah login berhasil
+        try {
+          // Pastikan messagingService sudah diinisialisasi
+          await messagingService.updateTokenToServer();
+          debugPrint('FCM token updated after successful login');
+        } catch (e) {
+          debugPrint('Error updating FCM token after login: $e');
+          // Tidak perlu return false karena login tetap berhasil meskipun
+          // update token FCM gagal
+        }
 
         _isLoading = false;
         notifyListeners();
@@ -97,6 +109,15 @@ class AuthProvider extends ChangeNotifier {
           _isLoading = false;
           notifyListeners();
           return false;
+        }
+
+        // Update FCM token ke server jika user sudah login
+        try {
+          await messagingService.updateTokenToServer();
+          debugPrint('FCM token updated after session restored');
+        } catch (e) {
+          debugPrint('Error updating FCM token after session restored: $e');
+          // Tidak perlu return false karena login check tetap berhasil
         }
       }
 

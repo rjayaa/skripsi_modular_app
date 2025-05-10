@@ -33,6 +33,22 @@ class NotificationProvider extends ChangeNotifier {
 
   bool get hasUnread => unreadCount > 0;
 
+  // Menambahkan notifikasi baru
+  void addNotification(NotificationItem notification) {
+    // Cek jika notifikasi dengan ID yang sama sudah ada
+    final existingIndex = _notifications.indexWhere(
+      (n) => n.id == notification.id,
+    );
+    if (existingIndex != -1) {
+      // Update notifikasi yang sudah ada
+      _notifications[existingIndex] = notification;
+    } else {
+      // Tambahkan notifikasi baru
+      _notifications.insert(0, notification);
+    }
+    notifyListeners();
+  }
+
   void markAsRead(String id) {
     final index = _notifications.indexWhere((notif) => notif.id == id);
     if (index != -1) {
